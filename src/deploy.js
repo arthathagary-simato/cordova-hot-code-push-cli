@@ -5,7 +5,7 @@
       fs = require('fs'),
       Q = require('q'),
       _ = require('lodash'),
-      s3sync = require('s3-sync-aws'),
+      AWS = require('aws-sdk'),
       readdirp = require('readdirp'),
       loginFile = path.join(process.cwd(), '.chcplogin');
 
@@ -66,43 +66,57 @@
       fileFilter: ignore
     });
 
-    var uploader = s3sync({
-      key: credentials.key,
-      secret: credentials.secret,
-      region: config.s3region,
-      bucket: config.s3bucket,
-      prefix: config.s3prefix,
-      acl: 'public-read',
-      headers: {
+    // Configure AWS
+    AWS.config.update({
+      accessKeyId: credentials.key,
+      secretAccessKey: credentials.secret,
+      region: config.s3region
+    });
+    
+    var s3 = new AWS.S3();
+    var uploadPromises = [];
+
+    files.on('data', function(entry) {
+      var fileKey = config.s3prefix ? path.posix.join(config.s3prefix, entry.path) : entry.path;
+      var fileContent = fs.readFileSync(entry.fullPath);
+      
+      var uploadParams = {
+        Bucket: config.s3bucket,
+        Key: fileKey,
+        Body: fileContent,
+        ACL: 'public-read',
         CacheControl: 'no-cache, no-store, must-revalidate',
-        Expires: 0
-      },
-      concurrency: 20
-    }).on('data', function(file) {
-      if (file.fresh) {
-        console.log("Updated " + file.fullPath + ' -> ' + file.url)
-      }
+        Expires: new Date(0)
+      };
+
+      var uploadPromise = s3.upload(uploadParams).promise()
+        .then(function(data) {
+          console.log("Updated " + entry.fullPath + ' -> ' + data.Location);
+        })
+        .catch(function(err) {
+          console.error("Failed to upload " + entry.fullPath + ":", err);
+          throw err;
+        });
+      
+      uploadPromises.push(uploadPromise);
     });
 
-    files.pipe(uploader);
+    files.on('end', function() {
+      console.log('Deploy started');
+      Promise.all(uploadPromises)
+        .then(function() {
+          console.log("Deploy done");
+          executeDfd.resolve();
+        })
+        .catch(function(err) {
+          console.error("unable to sync:", err);
+          executeDfd.reject();
+        });
+    });
 
-    console.log('Deploy started');
-    uploader.on('error', function(err) {
+    files.on('error', function(err) {
       console.error("unable to sync:", err.stack);
       executeDfd.reject();
-    });
-    uploader.on('fail', function(err) {
-      console.error("unable to sync:", err);
-      executeDfd.reject();
-    });
-
-    //uploader.on('progress', function() {
-    //  var progress = uploader.progressTotal - uploader.progressAmount;
-    //  console.log("progress", progress, uploader.progressTotal, uploader.progressAmount);
-    //});
-    uploader.on('end', function() {
-      console.log("Deploy done");
-      executeDfd.resolve();
     });
     return executeDfd.promise;
   }

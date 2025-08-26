@@ -5,7 +5,7 @@
       _ = require('lodash'),
       fs = require("fs"),
       buildDirectory = path.join(process.cwd(), '.chcpbuild'),
-      watch = require('watch'),
+      chokidar = require('chokidar'),
       express = require('express'),
       app = express(),
       assetPort = process.env.PORT || 31284,
@@ -125,14 +125,13 @@
   function watchForFileChange(){
     // Monitor for file changes
     console.log('Checking: ', sourceDirectory);
-    watch.watchTree(sourceDirectory, {filter: fileChangeFilter}, function (f, curr, prev) {
-      if (typeof f == "object" && prev === null && curr === null) {
-        // Finished walking the tree
-        // console.log('Finished');
-      } else {
-        handleFileChange(f);
-      }
+    const watcher = chokidar.watch(sourceDirectory, {
+      ignored: fileChangeFilter,
+      persistent: true
     });
+    
+    watcher.on('change', handleFileChange);
+    watcher.on('add', handleFileChange);
   }
 
   function handleFileChange(file) {

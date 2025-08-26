@@ -1,6 +1,6 @@
 import prompt from 'prompt';
 import fs from 'fs';
-import { execute } from './../src/init';
+import { execute } from './../dist/init';
 
 const withBucket = {
   name: 'name',

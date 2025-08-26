@@ -1,4 +1,4 @@
-import { writeFile } from './../src/utils';
+import { writeFile } from './../dist/utils';
 import fs from 'fs';
 
 

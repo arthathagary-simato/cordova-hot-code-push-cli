@@ -1,91 +1,66 @@
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.execute = execute;
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _es6Promise = require('es6-promise');
-
-var _es6Promise2 = _interopRequireDefault(_es6Promise);
-
-var _path = require('path');
-
-var _path2 = _interopRequireDefault(_path);
-
-var _prompt = require('prompt');
-
-var _prompt2 = _interopRequireDefault(_prompt);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _utils = require('./utils');
-
-_es6Promise2['default'].polyfill();
-
-var configFile = _path2['default'].join(process.cwd(), 'cordova-hcp.json');
-
-var name = {
+var _es6Promise = _interopRequireDefault(require("es6-promise"));
+var _path = _interopRequireDefault(require("path"));
+var _prompt = _interopRequireDefault(require("prompt"));
+var _lodash = _interopRequireDefault(require("lodash"));
+var _utils = require("./utils");
+function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
+_es6Promise.default.polyfill();
+const configFile = _path.default.join(process.cwd(), 'cordova-hcp.json');
+const name = {
   description: 'Enter project name (required)',
   pattern: /^[a-zA-Z\-\s0-9]+$/,
   message: 'Name must be only letters, numbers, space or dashes',
   required: true
 };
-
-var s3bucket = {
+const s3bucket = {
   description: 'Amazon S3 Bucket name (required for cordova-hcp deploy)',
   pattern: /^[a-zA-Z\-0-9\.]+$/,
   message: 'Name must be only letters, numbers, or dashes'
 };
-
-var s3prefix = {
+const s3prefix = {
   description: 'Path in S3 bucket (optional for cordova-hcp deploy)',
   pattern: /^[a-zA-Z\-\s0-9\.\/]+\/$/,
   message: 'Path must be only letters, numbers, spaces, forward slashes or dashes and must end with a forward slash'
 };
-
-var s3region = {
+const s3region = {
   description: 'Amazon S3 region (required for cordova-hcp deploy)',
   pattern: /^(us-east-1|us-west-2|us-west-1|eu-west-1|eu-central-1|ap-southeast-1|ap-southeast-2|ap-northeast-1|sa-east-1)$/,
-  'default': 'us-east-1',
+  default: 'us-east-1',
   message: 'Must be one of: us-east-1, us-west-2, us-west-1, eu-west-1, eu-central-1, ap-southeast-1, ap-southeast-2, ap-northeast-1, sa-east-1'
 };
-
-var iosIdentifier = {
+const iosIdentifier = {
   description: 'IOS app identifier',
   pattern: /^[a-zA-Z\-0-9\.]+$/
 };
-
-var androidIdentifier = {
+const androidIdentifier = {
   description: 'Android app identifier',
   pattern: /^[a-zA-Z\-0-9\.]+$/
 };
-
-var update = {
+const update = {
   description: 'Update method (required)',
   pattern: /(start|resume|now)/,
   required: true,
   message: 'Needs to be one of start, resume or now',
-  'default': 'resume'
+  default: 'resume'
 };
-
-var schema = {
+const schema = {
   properties: {
-    name: name,
-    s3bucket: s3bucket,
-    s3prefix: s3prefix,
-    s3region: s3region,
+    name,
+    s3bucket,
+    s3prefix,
+    s3region,
     ios_identifier: iosIdentifier,
     android_identifier: androidIdentifier,
-    update: update
+    update
   }
 };
-
-var urlSchema = {
+const urlSchema = {
   properties: {
     content_url: {
       description: 'Enter full URL to directory where cordova-hcp build result will be uploaded',
@@ -94,55 +69,40 @@ var urlSchema = {
     }
   }
 };
-
 function execute(context) {
-  _prompt2['default'].override = context.argv;
-  _prompt2['default'].message = 'Please provide';
-  _prompt2['default'].delimiter = ': ';
-  _prompt2['default'].start();
-
-  var result = undefined;
-
-  (0, _utils.getInput)(_prompt2['default'], schema).then(validateBucket).then(function (res) {
-    return result = res;
-  }).then(getUrl).then(function (url) {
-    return _lodash2['default'].assign(result, url);
-  }).then(function (content) {
-    return (0, _utils.writeFile)(configFile, content);
-  }).then(done);
+  _prompt.default.override = context.argv;
+  _prompt.default.message = 'Please provide';
+  _prompt.default.delimiter = ': ';
+  _prompt.default.start();
+  let result;
+  (0, _utils.getInput)(_prompt.default, schema).then(validateBucket).then(res => result = res).then(getUrl).then(url => _lodash.default.assign(result, url)).then(content => (0, _utils.writeFile)(configFile, content)).then(done);
 }
-
 function validateBucket(result) {
   if (!result.s3bucket) {
-    return _lodash2['default'].omit(result, ['s3region', 's3bucket', 's3prefix']);
+    return _lodash.default.omit(result, ['s3region', 's3bucket', 's3prefix']);
   }
-
   return result;
 }
-
-function getUrl(_ref) {
-  var region = _ref.s3region;
-  var bucket = _ref.s3bucket;
-  var path = _ref.s3prefix;
-
+function getUrl({
+  s3region: region,
+  s3bucket: bucket,
+  s3prefix: path
+}) {
   if (!bucket) {
-    return (0, _utils.getInput)(_prompt2['default'], urlSchema);
+    return (0, _utils.getInput)(_prompt.default, urlSchema);
   }
-
-  return { content_url: getContentUrl(region, bucket, path) };
+  return {
+    content_url: getContentUrl(region, bucket, path)
+  };
 }
-
 function getContentUrl(region, bucket, path) {
-  var url = region === 'us-east-1' ? 's3.amazonaws.com' : 's3-' + region + '.amazonaws.com';
-  url = 'https://' + url + '/' + bucket;
-
+  let url = region === 'us-east-1' ? 's3.amazonaws.com' : `s3-${region}.amazonaws.com`;
+  url = `https://${url}/${bucket}`;
   if (path) {
-    url += '/' + path;
+    url += `/${path}`;
   }
-
   return url;
 }
-
 function done(err) {
   if (err) {
     return console.log(err);
@@ -151,3 +111,4 @@ function done(err) {
   console.log('If you wish to exclude files from being published, specify them in .chcpignore');
   console.log('Before you can push updates you need to run "cordova-hcp login" in project directory');
 }
+//# sourceMappingURL=init.js.map

@@ -1,29 +1,19 @@
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.getInput = getInput;
 exports.writeFile = writeFile;
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _fs = require('fs');
-
-var _fs2 = _interopRequireDefault(_fs);
-
+var _fs = _interopRequireDefault(require("fs"));
+function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function getInput(prompt, props) {
-  return new Promise(function (resolve) {
-    return prompt.get(props, function (err, result) {
-      return resolve(result, err);
-    });
-  });
+  return new Promise(resolve => prompt.get(props, (err, result) => resolve(result, err)));
 }
-
 function writeFile(file, content) {
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     var data = JSON.stringify(content, null, 2);
-    _fs2['default'].writeFile(file, data, function (err) {
+    _fs.default.writeFile(file, data, err => {
       if (err) {
         reject(err);
       } else {
@@ -32,3 +22,4 @@ function writeFile(file, content) {
     });
   });
 }
+//# sourceMappingURL=utils.js.map
