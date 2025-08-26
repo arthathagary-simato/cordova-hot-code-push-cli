@@ -1,16 +1,28 @@
-# THIS PROJECT IS DEPRECATED
+# Cordova Hot Code Push Plugin CLI client - Node.js 20+ Compatible
 
-We are not using this repo anymore, and we lack the manpower and the experience needed to maintain it. We are aware of the inconveniece that this may cause you. Feel free to use it as is, or create your own fork. See https://github.com/nordnet/cordova-hot-code-push-cli/issues/79 for more information.
-
-
-# Cordova Hot Code Push Plugin CLI client
+**🎉 Now supports Node.js 18+ and 20+!** This is an updated version of the original [Cordova Hot Code Push Plugin CLI](https://github.com/nordnet/cordova-hot-code-push-cli) with full Node.js 20+ compatibility.
 
 This is a command line utility for [Cordova Hot Code Push Plugin](https://github.com/nordnet/cordova-hot-code-push). It will help you with development and deploy changes to your Cordova application via hot code push, without the need to submit your changes to the Apple App Store or Google Play.
 
 Main features are:
+- ✅ **Node.js 18+ and 20+ support** - Fully compatible with modern Node.js versions
 - Automatically generate configuration files, required for Hot Code Push plugin (`chcp.json` and `chcp.manifest`).
 - Run local server in order to detect any changes you make in your web project and instantly upload them on the devices.
 - Deploy your web project on the external servers with the single command. For now it only supports deployment on the Amazon servers. More deployment targets will be added later.
+
+## What's New in v2.0.0
+
+- ✅ **Node.js 20+ Compatibility**: Updated all dependencies to support Node.js 18+ and 20+
+- ✅ **Modern Dependencies**: Replaced outdated packages with modern, secure alternatives
+- ✅ **Security Updates**: Eliminated all security vulnerabilities
+- ✅ **Babel 7**: Updated build system to use modern Babel 7
+- ✅ **Enhanced File Watching**: Replaced vulnerable `watch` package with `chokidar`
+- ✅ **AWS SDK v2**: Updated S3 deployment to use modern AWS SDK
+
+## Requirements
+
+- **Node.js**: 18.0.0 or higher (tested with Node.js 20+)
+- **npm**: Latest version recommended
 
 ## Documentation
 
@@ -29,15 +41,50 @@ Main features are:
 
 ### Installation
 
-You can install CLI client using `npm install` (current stable 1.1.1):
+You can install the Node.js 20+ compatible version using `npm install`:
+
 ```sh
-npm install -g cordova-hot-code-push-cli
+npm install -g cordova-hot-code-push-cli-renew-20
 ```
 
-It is also possible to install via repo url directly (__unstable__):
+**Note**: This is an updated version of the original package with Node.js 20+ support. The original package is deprecated and only supports Node.js ≤5.1.0.
+
+For the legacy version (Node.js ≤5.1.0 only):
 ```sh
-npm install -g https://github.com/nordnet/cordova-hot-code-push-cli.git
+npm install -g cordova-hot-code-push-cli@1.1.1
 ```
+
+### Node.js Compatibility
+
+| Version | Node.js Support | Status |
+|---------|----------------|--------|
+| **v2.0.0+** | **18.0.0+** (including 20+) | ✅ **Active** |
+| v1.1.1 | 0.10.3 - 5.1.0 | ⚠️ Legacy/Deprecated |
+
+### Migration from v1.x
+
+If you're upgrading from the original `cordova-hot-code-push-cli` v1.x:
+
+1. **Uninstall the old version**:
+   ```sh
+   npm uninstall -g cordova-hot-code-push-cli
+   ```
+
+2. **Install the new Node.js 20+ compatible version**:
+   ```sh
+   npm install -g cordova-hot-code-push-cli-renew-20
+   ```
+
+3. **Update your Node.js** to version 18+ (Node.js 20+ recommended):
+   ```sh
+   node --version  # Should show 18.0.0 or higher
+   ```
+
+All existing project configurations and commands remain the same!
+
+## Credits
+
+This project is based on the original [cordova-hot-code-push-cli](https://github.com/nordnet/cordova-hot-code-push-cli) by Nordnet Bank AB, which is now deprecated. This version has been updated and modernized to support Node.js 18+ and 20+ with all security vulnerabilities fixed.
 
 ### How to use
 
