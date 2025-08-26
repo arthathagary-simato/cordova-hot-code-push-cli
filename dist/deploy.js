@@ -16,9 +16,12 @@
   function execute(context) {
     var executeDfd = Q.defer();
     build(context).then(function () {
-      deploy(context).then(function () {
-        executeDfd.resolve();
-      });
+      return deploy(context);
+    }).then(function () {
+      executeDfd.resolve();
+    }).catch(function (err) {
+      console.error('Deploy failed:', err);
+      executeDfd.reject(err);
     });
     return executeDfd.promise;
   }
@@ -27,9 +30,11 @@
       config,
       credentials,
       ignore = context.ignoredFiles;
+    console.log('Starting deploy process...');
     try {
       config = fs.readFileSync(context.defaultConfig, 'utf8');
       config = JSON.parse(config);
+      console.log('Config loaded successfully');
     } catch (e) {
       console.log('Cannot parse cordova-hcp.json. Did you run cordova-hcp init?');
       process.exit(0);
@@ -42,6 +47,7 @@
     try {
       credentials = fs.readFileSync(loginFile, 'utf8');
       credentials = JSON.parse(credentials);
+      console.log('Credentials loaded successfully');
     } catch (e) {
       console.log('Cannot parse .chcplogin: ', e);
     }
@@ -56,8 +62,7 @@
     // console.log('Config: ', config);
     // console.log('Ignore: ', ignore);
 
-    var files = readdirp({
-      root: context.sourceDirectory,
+    var files = readdirp(context.sourceDirectory, {
       fileFilter: ignore
     });
 

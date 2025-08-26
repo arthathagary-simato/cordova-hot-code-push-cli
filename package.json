@@ -1,6 +1,6 @@
 {
   "name": "cordova-hot-code-push-cli-renew-20",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Cordova Hot Code Push CLI",
   "preferGlobal": "true",
   "bin": {
